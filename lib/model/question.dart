@@ -4,7 +4,7 @@ class Question{
   int timeToRecord;
   String videoURL;
 
-  Question(this.question, this.timeToRecord);
+  Question({this.question, this.timeToRecord});
 
   String getQuestion(){
     return question;
