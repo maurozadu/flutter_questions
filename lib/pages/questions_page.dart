@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_questions/model/question.dart';
+import 'package:flutter_questions/models/question.dart';
 import 'package:flutter_questions/widgets/video_recorder.dart';
 
 class QuestionsListPage extends StatefulWidget {
@@ -22,6 +22,7 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
 
   int _index = 0;
   String _questionText = '';
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -32,14 +33,17 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Questions'),
       ),
-      body: _getBody(),
+      body: Builder(
+        builder: (context) => _getBody(context: context),
+      ),
     );
   }
 
-  _getBody() {
+  _getBody({BuildContext context}) {
     ListView list = ListView(
       children: <Widget>[
         Column(
@@ -63,12 +67,23 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
                 onPressed: () => onNextButtonPressed(),
               ),
             ),
-            VideoRecorder(),
+            VideoRecorder(
+              videoKey: _scaffoldKey,
+              onVideoRecorded: (videoURL) => onVideoRecorded(videoURL, context),
+            ),
           ],
         )
       ],
     );
     return list;
+  }
+
+  onVideoRecorded(String videoURL, BuildContext context) {
+    if (videoURL != null && videoURL.isNotEmpty) {
+      questions[_index].setVideoUrl(videoURL);
+      showSnackBarMessage(
+          '$videoURL has been recorded and saved to question', context);
+    }
   }
 
   onNextButtonPressed() {
@@ -77,5 +92,14 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
       if (_index == questions.length) _index = 0;
       _questionText = questions[_index].getQuestion();
     });
+  }
+
+  void showSnackBarMessage(String message, BuildContext context) {
+    if (message != null)
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
   }
 }

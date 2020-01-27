@@ -5,12 +5,12 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
-import 'package:flutter_questions/model/question.dart';
 
 class VideoRecorder extends StatefulWidget {
-  final Question question;
+  Function onVideoRecorded;
+  GlobalKey<ScaffoldState> videoKey = GlobalKey<ScaffoldState>();
 
-  VideoRecorder({this.question});
+  VideoRecorder({this.onVideoRecorded, this.videoKey});
 
   @override
   _VideoRecorderState createState() {
@@ -91,25 +91,10 @@ class _VideoRecorderState extends State<VideoRecorder>
         _surfaceCameraView(),
         _captureControlRowWidget(),
         _toggleAudioWidget(),
-        _toggleCameraSelector(),
-        _finishButton(context)
+        _toggleCameraSelector()
       ],
     );
     return column;
-  }
-
-  Widget _finishButton(BuildContext ctx) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: double.infinity),
-      child: RaisedButton(
-        padding: EdgeInsets.all(20.0),
-        color: Colors.blue,
-        child: Text('Finish'),
-        onPressed: () {
-          if (videoPath != null) Navigator.pop(ctx, videoPath);
-        },
-      ),
-    );
   }
 
   Widget _toggleCameraSelector() {
@@ -122,25 +107,6 @@ class _VideoRecorderState extends State<VideoRecorder>
   }
 
   Widget _surfaceCameraView() {
-    var widget1 = Expanded(
-      child: Container(
-        child: Padding(
-          padding: const EdgeInsets.all(1.0),
-          child: Center(
-            child: _cameraPreviewWidget(),
-          ),
-        ),
-        decoration: BoxDecoration(
-          color: Colors.black,
-          border: Border.all(
-              width: 3.0,
-              color: controller != null && controller.value.isRecordingVideo
-                  ? Colors.redAccent
-                  : Colors.grey),
-        ),
-      ),
-    );
-
     var container = Container(
       child: Padding(
         padding: const EdgeInsets.all(1.0),
@@ -338,7 +304,8 @@ class _VideoRecorderState extends State<VideoRecorder>
 
   void showInSnackBar(String message) {
     if (message != null)
-      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(message)));
+      widget.videoKey.currentState
+          .showSnackBar(SnackBar(content: Text(message)));
   }
 
   void onNewCameraSelected(CameraDescription cameraDescription) async {
@@ -427,7 +394,11 @@ class _VideoRecorderState extends State<VideoRecorder>
       return null;
     }
 
-    await _startVideoPlayer();
+    if (videoPath != null &&
+        videoPath.isNotEmpty &&
+        widget.onVideoRecorded != null) {
+      widget.onVideoRecorded(videoPath);
+    }
   }
 
   Future<void> pauseVideoRecording() async {
