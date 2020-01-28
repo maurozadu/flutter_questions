@@ -54,6 +54,7 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
               title: Text(
                 _questionText,
                 textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white),
               ),
             ),
             Container(
@@ -67,15 +68,25 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
                 onPressed: () => onNextButtonPressed(),
               ),
             ),
-            VideoRecorder(
-              videoKey: _scaffoldKey,
-              onVideoRecorded: (videoURL) => onVideoRecorded(videoURL, context),
-            ),
           ],
         )
       ],
     );
-    return list;
+    Widget body = Column(
+      children: <Widget>[
+        Expanded(
+          child: Stack(
+            children: <Widget>[
+              VideoRecorder(),
+              Positioned(
+                child: list,
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+    return body;
   }
 
   onVideoRecorded(String videoURL, BuildContext context) {

@@ -43,6 +43,7 @@ class _VideoRecorderState extends State<VideoRecorder>
   VoidCallback videoPlayerListener;
   bool enableAudio = true;
   List<CameraDescription> cameras = [];
+  int selectedCameraIdx = 0;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -90,20 +91,9 @@ class _VideoRecorderState extends State<VideoRecorder>
       children: <Widget>[
         _surfaceCameraView(),
         _captureControlRowWidget(),
-        _toggleAudioWidget(),
-        _toggleCameraSelector()
       ],
     );
     return column;
-  }
-
-  Widget _toggleCameraSelector() {
-    return Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[_cameraTogglesRowWidget(), _thumbnailWidget()],
-        ));
   }
 
   Widget _surfaceCameraView() {
@@ -147,14 +137,7 @@ class _VideoRecorderState extends State<VideoRecorder>
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
-        IconButton(
-            icon: const Icon(Icons.camera_alt),
-            color: Colors.blue,
-            onPressed: controller != null &&
-                    controller.value.isInitialized &&
-                    !controller.value.isRecordingVideo
-                ? onTakePictureButtonPressed
-                : null),
+        _cameraTogglesRowWidget(),
         IconButton(
             icon: Icon(Icons.videocam),
             color: Colors.blue,
@@ -163,19 +146,6 @@ class _VideoRecorderState extends State<VideoRecorder>
                     !controller.value.isRecordingVideo
                 ? onVideoRecordButtonPressed
                 : null),
-        IconButton(
-          icon: controller != null && controller.value.isRecordingPaused
-              ? Icon(Icons.play_arrow)
-              : Icon(Icons.pause),
-          color: Colors.blue,
-          onPressed: controller != null &&
-                  controller.value.isInitialized &&
-                  controller.value.isRecordingVideo
-              ? (controller != null && controller.value.isRecordingVideo
-                  ? onResumeButtonPressed
-                  : onPauseButtonPressed)
-              : null,
-        ),
         IconButton(
             icon: const Icon(Icons.stop),
             color: Colors.red,
@@ -188,78 +158,25 @@ class _VideoRecorderState extends State<VideoRecorder>
     );
   }
 
-  /// Toggle recording audio
-  Widget _toggleAudioWidget() {
-    return Padding(
-        padding: const EdgeInsets.only(left: 25),
-        child: Row(
-          children: <Widget>[
-            Text('Enable Audio:'),
-            Switch(
-              value: enableAudio,
-              onChanged: (bool value) {
-                enableAudio = value;
-                if (controller != null) {
-                  onNewCameraSelected(controller.description);
-                }
-              },
-            )
-          ],
-        ));
-  }
-
   /// Selector of front Camera and main Camera
   Widget _cameraTogglesRowWidget() {
-    final List<Widget> toggles = <Widget>[];
-
-    if (cameras.isEmpty) {
-      return const Text('No camera found');
-    } else {
-      for (CameraDescription cameraDescription in cameras) {
-        toggles.add(SizedBox(
-            width: 90.0,
-            child: RadioListTile<CameraDescription>(
-                title: Icon(getCameraLensIcon(cameraDescription.lensDirection)),
-                groupValue: controller?.description,
-                value: cameraDescription,
-                onChanged:
-                    controller != null && controller.value.isRecordingVideo
-                        ? null
-                        : onNewCameraSelected)));
-      }
+    if (cameras == null || cameras.isEmpty){
+      return Spacer();
     }
-    return Row(children: toggles);
-  }
 
-  /// Display the thumbnail of the captured image or video
-  Widget _thumbnailWidget() {
-    return Expanded(
-        child: Align(
-      alignment: Alignment.centerRight,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          videoController == null && imagePath == null
-              ? Container()
-              : SizedBox(
-                  width: 64.0,
-                  height: 64.0,
-                  child: (videoController == null)
-                      ? Image.file(File(imagePath))
-                      : Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.pink)),
-                          child: Center(
-                              child: AspectRatio(
-                            child: VideoPlayer(videoController),
-                            aspectRatio: videoController.value.size != null
-                                ? videoController.value.aspectRatio
-                                : 1.0,
-                          )),
-                        ))
-        ],
-      ),
-    ));
+    CameraDescription selectedCamera = cameras[selectedCameraIdx];
+    CameraLensDirection lensDirection = selectedCamera.lensDirection;
+
+  Widget body =Align(
+        alignment: Alignment.centerLeft,
+        child: FlatButton.icon(
+          onPressed: ()=>_onSwitchCamera(),
+          icon: Icon(getCameraLensIcon(lensDirection)),
+          label: Text('${lensDirection.toString().substring(lensDirection.toString().indexOf('.') + 1)}')
+        )
+      );
+    
+    return body;
   }
 
   /// Take Picture
@@ -306,6 +223,12 @@ class _VideoRecorderState extends State<VideoRecorder>
     if (message != null)
       widget.videoKey.currentState
           .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _onSwitchCamera() {
+    selectedCameraIdx = selectedCameraIdx == 1 ? 0 : 1;
+    CameraDescription cameraDescription = cameras[selectedCameraIdx];
+    onNewCameraSelected(cameraDescription);
   }
 
   void onNewCameraSelected(CameraDescription cameraDescription) async {
