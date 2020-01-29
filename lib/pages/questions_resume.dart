@@ -18,8 +18,21 @@ class _QuestionsResumePageState extends State<QuestionsResumePage> {
         title: Text('Resume Video'),
       ),
       body: ListView(
-        children: <Widget>[],
+        children: getQuestionListView(),
       ),
     );
+  }
+
+  List<Widget> getQuestionListView() {
+    final List<Widget> questionLists = [];
+    widget.questions.forEach((question) {
+      final tile = ListTile(
+        title: Text(question.getQuestion()),
+        subtitle: Text(question.getVideoUrl()),
+      );
+
+      questionLists..add(tile);
+    });
+    return questionLists;
   }
 }

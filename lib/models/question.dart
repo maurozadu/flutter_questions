@@ -9,6 +9,10 @@ class Question {
     return question;
   }
 
+  String getVideoUrl() {
+    return videoURL;
+  }
+
   setVideoUrl(String inVideoURL) {
     this.videoURL = inVideoURL;
   }
