@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_questions/models/question.dart';
+import 'package:flutter_questions/pages/questions_resume.dart';
 import 'package:flutter_questions/widgets/video_recorder.dart';
 
 class QuestionsListPage extends StatefulWidget {
@@ -25,12 +26,14 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
   int _index = 0;
   String _questionText = '';
   String _recordButtonText = 'Siguiente';
+  IconData recordIcon;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
     _questionText = questions[0].getQuestion();
+    recordIcon = Icons.videocam;
   }
 
   @override
@@ -51,16 +54,18 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         IconButton(
-          icon: Icon(Icons.videocam, color: Colors.black),
+          icon: Icon(recordIcon, color: Colors.blue),
           onPressed: () => onRecordButtonPressed(),
         ),
-        RaisedButton(
-          color: Colors.blue,
-          textColor: Colors.white,
-          shape: StadiumBorder(),
-          child: Text(_recordButtonText),
-          onPressed: () => onNextButtonPressed(),
-        ),
+        !questions[_index].hasVideo()
+            ? Container()
+            : RaisedButton(
+                color: Colors.blue,
+                textColor: Colors.white,
+                shape: StadiumBorder(),
+                child: Text(_recordButtonText),
+                onPressed: () => onNextButtonPressed(context),
+              ),
       ],
     );
 
@@ -95,6 +100,7 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
                   recorderController: recorderController,
                   onVideoRecorded: (videoURL) =>
                       onVideoRecorded(videoURL, context),
+                  onUpdateRecordingButton: () => updateUIButtons(),
                 ),
               ),
               Positioned(
@@ -112,13 +118,20 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
     if (videoURL != null && videoURL.isNotEmpty) {
       questions[_index].setVideoUrl(videoURL);
       print('$videoURL saved to ${questions[_index].getQuestion()}');
+      setState(() {});
     }
   }
 
-  onNextButtonPressed() {
+  onNextButtonPressed(BuildContext context) {
+    _index++;
+    if (_index == questions.length) {
+      final route = MaterialPageRoute(
+          builder: (context) => QuestionsResumePage(questions: questions));
+      Navigator.push(context, route);
+      _index = 0;
+      return;
+    }
     setState(() {
-      _index++;
-      if (_index == questions.length) _index = 0;
       _questionText = questions[_index].getQuestion();
     });
   }
@@ -141,6 +154,13 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
 
   stopRecording() {
     recorderController.stopRecording();
+  }
+
+  updateUIButtons() {
+    setState(() {
+      recordIcon =
+          recorderController.isRecording() ? Icons.stop : Icons.videocam;
+    });
   }
 
   void showSnackBarMessage(String message, BuildContext context) {

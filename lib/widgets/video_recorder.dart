@@ -30,10 +30,15 @@ void logError(String code, String message) =>
 
 class VideoRecorder extends StatefulWidget {
   Function onVideoRecorded;
+  Function onUpdateRecordingButton;
   GlobalKey<ScaffoldState> videoKey = GlobalKey<ScaffoldState>();
   VideoRecorderController recorderController;
 
-  VideoRecorder({this.onVideoRecorded, this.videoKey, this.recorderController});
+  VideoRecorder(
+      {this.onVideoRecorded,
+      this.videoKey,
+      this.recorderController,
+      this.onUpdateRecordingButton});
 
   @override
   _VideoRecorderState createState() {
@@ -150,33 +155,6 @@ class _VideoRecorderState extends State<VideoRecorder>
     }
   }
 
-  /// Display the control bar with buttons to take pictures and record videos
-  Widget _captureControlRowWidget() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        _cameraTogglesRowWidget(),
-        IconButton(
-            icon: Icon(Icons.videocam),
-            color: Colors.blue,
-            onPressed: controller != null &&
-                    controller.value.isInitialized &&
-                    !controller.value.isRecordingVideo
-                ? onVideoRecordButtonPressed
-                : null),
-        IconButton(
-            icon: const Icon(Icons.stop),
-            color: Colors.red,
-            onPressed: controller != null &&
-                    controller.value.isInitialized &&
-                    controller.value.isRecordingVideo
-                ? onStopButtonPressed
-                : null)
-      ],
-    );
-  }
-
   /// Selector of front Camera and main Camera
   Widget _cameraTogglesRowWidget() {
     if (cameras == null || cameras.isEmpty) {
@@ -270,6 +248,7 @@ class _VideoRecorderState extends State<VideoRecorder>
       return null;
     }
     _isRecordingVideo = true;
+    widget.onUpdateRecordingButton();
     return filePath;
   }
 
@@ -289,6 +268,7 @@ class _VideoRecorderState extends State<VideoRecorder>
         videoPath.isNotEmpty &&
         widget.onVideoRecorded != null) {
       _isRecordingVideo = false;
+      widget.onUpdateRecordingButton();
       widget.onVideoRecorded(videoPath);
     }
   }
