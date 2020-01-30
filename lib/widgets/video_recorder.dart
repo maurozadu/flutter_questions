@@ -6,11 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 /*
-  * Global Values
-  */
-StreamController<int> _controller = StreamController<int>();
+ * Global Values
+ */
+StreamController<RecorderControllerState> _controller =
+    StreamController<RecorderControllerState>();
 Stream _recorderStream = _controller.stream;
 bool _isRecordingVideo = false;
+
+/*
+ * Recorder Controller State Values
+ */
+enum RecorderControllerState { record, stop, switchCamera }
 
 /// Returns a suitable camera icon for [direction].
 IconData getCameraLensIcon(CameraLensDirection direction) {
@@ -102,11 +108,17 @@ class _VideoRecorderState extends State<VideoRecorder>
     return Container(key: _scaffoldKey, child: _getBody());
   }
 
-  void onRecorderControllerChangeState(int state) {
-    if (state == VideoRecorderController.RECORD) {
-      onVideoRecordButtonPressed();
-    } else if (state == VideoRecorderController.STOP) {
-      onStopButtonPressed();
+  void onRecorderControllerChangeState(RecorderControllerState state) {
+    switch (state) {
+      case RecorderControllerState.record:
+        onVideoRecordButtonPressed();
+        break;
+      case RecorderControllerState.stop:
+        onStopButtonPressed();
+        break;
+      case RecorderControllerState.switchCamera:
+        onChangeCameraPressed();
+        break;
     }
   }
 
@@ -188,6 +200,10 @@ class _VideoRecorderState extends State<VideoRecorder>
     stopVideoRecording().then((_) {
       if (mounted) setState(() {});
     });
+  }
+
+  void onChangeCameraPressed() {
+    _onSwitchCamera();
   }
 
   void showInSnackBar(String message) {
@@ -285,17 +301,22 @@ class _VideoRecorderState extends State<VideoRecorder>
 }
 
 class VideoRecorderController {
-  static final int RECORD = 1;
-  static final int STOP = 2;
-
+  /// Inits recording video in a new file
   void startRecording() {
-    _controller.add(RECORD);
+    _controller.add(RecorderControllerState.record);
   }
 
+  /// Stops recording video
   void stopRecording() {
-    _controller.add(STOP);
+    _controller.add(RecorderControllerState.stop);
   }
 
+  // Switches recording camera
+  void switchCamera() {
+    _controller.add(RecorderControllerState.switchCamera);
+  }
+
+  /// Returns true if camera is recording video
   bool isRecording() {
     return _isRecordingVideo;
   }

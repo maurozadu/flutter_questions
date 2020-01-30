@@ -15,12 +15,7 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
 
   List<Question> questions = [
     Question(question: 'Pregunta 1', timeToRecord: 10),
-    Question(question: 'Pregunta 2', timeToRecord: 10),
-    Question(question: 'Pregunta 3', timeToRecord: 10),
-    Question(question: 'Pregunta 4', timeToRecord: 10),
-    Question(question: 'Pregunta 5', timeToRecord: 10),
-    Question(question: 'Pregunta 6', timeToRecord: 10),
-    Question(question: 'Pregunta 7', timeToRecord: 10)
+    Question(question: 'Pregunta 2', timeToRecord: 10)
   ];
 
   int _index = 0;
@@ -53,6 +48,14 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
     Row buttonsRow = Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
+        IconButton(
+          icon: Icon(
+            Icons.switch_video,
+            color: Colors.blue,
+          ),
+          onPressed: () => _switchCamera(),
+          tooltip: 'Switch camera',
+        ),
         IconButton(
           icon: Icon(recordIcon, color: Colors.blue),
           onPressed: () => onRecordButtonPressed(),
@@ -154,6 +157,10 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
 
   stopRecording() {
     recorderController.stopRecording();
+  }
+
+  _switchCamera() {
+    recorderController.switchCamera();
   }
 
   updateUIButtons() {
