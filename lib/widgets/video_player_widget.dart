@@ -6,7 +6,7 @@ import 'package:video_player/video_player.dart';
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
 
-  VideoPlayerWidget({this.videoUrl});
+  VideoPlayerWidget({@required this.videoUrl});
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
@@ -33,7 +33,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      
+      child: Center(
+        child: _controller.value.initialized ? AspectRatio(
+          aspectRatio: _controller.value.aspectRatio,
+          child: VideoPlayer(_controller),
+        ) : Container(),
+      ),
     );
   }
 }

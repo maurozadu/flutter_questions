@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_questions/models/question.dart';
+import 'package:flutter_questions/widgets/video_player_widget.dart';
 
 class QuestionsResumePage extends StatefulWidget {
   final List<Question> questions;
@@ -28,7 +29,7 @@ class _QuestionsResumePageState extends State<QuestionsResumePage> {
     widget.questions.forEach((question) {
       final tile = ListTile(
         title: Text(question.getQuestion()),
-        subtitle: Text(question.getVideoUrl()),
+        subtitle: VideoPlayerWidget(videoUrl: question.getVideoUrl(),),
       );
 
       questionLists..add(tile);
