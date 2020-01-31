@@ -29,7 +29,9 @@ class _QuestionsResumePageState extends State<QuestionsResumePage> {
     widget.questions.forEach((question) {
       final tile = ListTile(
         title: Text(question.getQuestion()),
-        subtitle: VideoPlayerWidget(videoUrl: question.getVideoUrl(),),
+        subtitle: VideoPlayerWidget(
+          videoUrl: question.getVideoUrl(),
+        ),
       );
 
       questionLists..add(tile);

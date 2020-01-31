@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -15,10 +16,17 @@ class VideoPlayerWidget extends StatefulWidget {
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   VideoPlayerController _controller;
 
+  bool _isPlaying = false;
+
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.file(File(widget.videoUrl))
+      ..addListener(() {
+        _isPlaying = _controller.value.isPlaying;
+
+
+      })
       ..initialize().then((_) {
         setState(() {});
       });
@@ -42,13 +50,13 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                   children: <Widget>[
                     VideoPlayer(_controller),
                     Center(
-                      child: _controller.value.isPlaying
+                      child: _isPlaying
                           ? IconButton(
                               icon: Icon(
-                                Icons.pause,
+                                Icons.stop,
                                 color: Colors.white,
                               ),
-                              onPressed: () => pauseVideo(),
+                              onPressed: () => stopVideo(),
                             )
                           : IconButton(
                               icon: Icon(Icons.play_arrow, color: Colors.white),
@@ -67,19 +75,22 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     if (widget.videoUrl == null) {
       return;
     }
-    if (_controller.value.initialized && !_controller.value.isPlaying) {
+    if (_controller.value.initialized) {
       setState(() {
         _controller.play();
       });
     }
   }
 
-  void pauseVideo() {
+  void stopVideo() {
     if (widget.videoUrl == null) {
       return;
     }
-    if (_controller.value.initialized && _controller.value.isPlaying) {
-      _controller.pause();
+    if (_controller.value.initialized) {
+      setState(() {
+        _controller.seekTo(Duration.zero);
+        _controller.pause();
+      });
     }
   }
 }

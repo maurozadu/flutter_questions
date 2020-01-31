@@ -35,10 +35,10 @@ void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');
 
 class VideoRecorder extends StatefulWidget {
-  Function onVideoRecorded;
-  Function onUpdateRecordingButton;
-  GlobalKey<ScaffoldState> videoKey = GlobalKey<ScaffoldState>();
-  VideoRecorderController recorderController;
+  final Function onVideoRecorded;
+  final Function onUpdateRecordingButton;
+  final GlobalKey<ScaffoldState> videoKey;
+  final VideoRecorderController recorderController;
 
   VideoRecorder(
       {this.onVideoRecorded,
@@ -165,28 +165,6 @@ class _VideoRecorderState extends State<VideoRecorder>
         child: CameraPreview(controller),
       );
     }
-  }
-
-  /// Selector of front Camera and main Camera
-  Widget _cameraTogglesRowWidget() {
-    if (cameras == null || cameras.isEmpty) {
-      return Spacer();
-    }
-
-    CameraDescription selectedCamera = cameras[selectedCameraIdx];
-    CameraLensDirection lensDirection = selectedCamera.lensDirection;
-
-    Widget body = Align(
-      alignment: Alignment.centerLeft,
-      child: FlatButton.icon(
-        onPressed: () => _onSwitchCamera(),
-        icon: Icon(getCameraLensIcon(lensDirection)),
-        label: Text(
-            '${lensDirection.toString().substring(lensDirection.toString().indexOf('.') + 1)}'),
-      ),
-    );
-
-    return body;
   }
 
   /// Record Video
