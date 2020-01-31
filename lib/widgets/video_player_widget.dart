@@ -34,11 +34,52 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   Widget build(BuildContext context) {
     return Container(
       child: Center(
-        child: _controller.value.initialized ? AspectRatio(
-          aspectRatio: _controller.value.aspectRatio,
-          child: VideoPlayer(_controller),
-        ) : Container(),
+        child: _controller.value.initialized
+            ? AspectRatio(
+                aspectRatio: 1,
+                //child: VideoPlayer(_controller),
+                child: Stack(
+                  children: <Widget>[
+                    VideoPlayer(_controller),
+                    Center(
+                      child: _controller.value.isPlaying
+                          ? IconButton(
+                              icon: Icon(
+                                Icons.pause,
+                                color: Colors.white,
+                              ),
+                              onPressed: () => pauseVideo(),
+                            )
+                          : IconButton(
+                              icon: Icon(Icons.play_arrow, color: Colors.white),
+                              onPressed: () => playVideo(),
+                            ),
+                    ),
+                  ],
+                ),
+              )
+            : Container(),
       ),
     );
+  }
+
+  void playVideo() {
+    if (widget.videoUrl == null) {
+      return;
+    }
+    if (_controller.value.initialized && !_controller.value.isPlaying) {
+      setState(() {
+        _controller.play();
+      });
+    }
+  }
+
+  void pauseVideo() {
+    if (widget.videoUrl == null) {
+      return;
+    }
+    if (_controller.value.initialized && _controller.value.isPlaying) {
+      _controller.pause();
+    }
   }
 }
