@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -24,8 +23,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     _controller = VideoPlayerController.file(File(widget.videoUrl))
       ..addListener(() {
         _isPlaying = _controller.value.isPlaying;
-
-
       })
       ..initialize().then((_) {
         setState(() {});
