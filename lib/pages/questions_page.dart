@@ -38,83 +38,73 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
       appBar: AppBar(
         title: Text('Questions'),
       ),
-      body: Builder(
-        builder: (context) => _getBody(context: context),
-      ),
-    );
-  }
-
-  _getBody({BuildContext context}) {
-    Row buttonsRow = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.switch_video,
-            color: Colors.blue,
-          ),
-          onPressed: () => _switchCamera(),
-          tooltip: 'Switch camera',
-        ),
-        IconButton(
-          icon: Icon(recordIcon, color: Colors.blue),
-          onPressed: () => onRecordButtonPressed(),
-        ),
-        !questions[_index].hasVideo()
-            ? Container()
-            : RaisedButton(
-                color: Colors.blue,
-                textColor: Colors.white,
-                shape: StadiumBorder(),
-                child: Text(_recordButtonText),
-                onPressed: () => onNextButtonPressed(context),
-              ),
-      ],
-    );
-
-    Column list = Column(
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        Expanded(
-          child: ListTile(
-            contentPadding: EdgeInsets.all(10.0),
-            title: Text(
-              _questionText,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: Stack(
+              children: <Widget>[
+                Positioned.fill(
+                  child: VideoRecorder(
+                    recorderController: recorderController,
+                    onVideoRecorded: (videoURL) =>
+                        onVideoRecorded(videoURL, context),
+                    onUpdateRecordingButton: () => updateUIButtons(),
+                  ),
+                ),
+                Positioned(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      Expanded(
+                        child: ListTile(
+                          contentPadding: EdgeInsets.all(10.0),
+                          title: Text(
+                            _questionText,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        alignment: Alignment.bottomCenter,
+                        margin: EdgeInsets.all(10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(
+                                Icons.switch_video,
+                                color: Colors.blue,
+                              ),
+                              onPressed: () => _switchCamera(),
+                              tooltip: 'Switch camera',
+                            ),
+                            IconButton(
+                              icon: Icon(recordIcon, color: Colors.blue),
+                              onPressed: () => onRecordButtonPressed(),
+                            ),
+                            !questions[_index].hasVideo()
+                                ? Container()
+                                : RaisedButton(
+                                    color: Colors.blue,
+                                    textColor: Colors.white,
+                                    shape: StadiumBorder(),
+                                    child: Text(_recordButtonText),
+                                    onPressed: () =>
+                                        onNextButtonPressed(context),
+                                  ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
             ),
           ),
-        ),
-        Container(
-          alignment: Alignment.bottomCenter,
-          margin: EdgeInsets.all(10.0),
-          child: buttonsRow,
-        ),
-      ],
+        ],
+      ),
     );
-
-    Widget body = Column(
-      children: <Widget>[
-        Expanded(
-          child: Stack(
-            children: <Widget>[
-              Positioned.fill(
-                child: VideoRecorder(
-                  recorderController: recorderController,
-                  onVideoRecorded: (videoURL) =>
-                      onVideoRecorded(videoURL, context),
-                  onUpdateRecordingButton: () => updateUIButtons(),
-                ),
-              ),
-              Positioned(
-                child: list,
-              )
-            ],
-          ),
-        ),
-      ],
-    );
-    return body;
   }
 
   void onVideoRecorded(String videoURL, BuildContext context) {
